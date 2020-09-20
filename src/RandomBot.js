@@ -1,9 +1,7 @@
-import { Game } from './Game';
+import { Game } from "./Game";
 
-export class Bot {
-
-  constructor() {
-  }
+export class RandomBot {
+  constructor() {}
 
   run(print = false) {
     let game = new Game();
@@ -12,14 +10,14 @@ export class Bot {
       if (!print) return;
       console.log(`PEGS LEFT: ${game.numPegsLeft()}`);
       console.log(game.toString());
-    }
+    };
 
     while (!game.isOver()) {
       printGame(game);
       const moves = game.getPossibleMoves();
       game = moves[Math.floor(Math.random() * moves.length)];
-    };
-    
+    }
+
     printGame(game);
 
     return game;
@@ -41,14 +39,16 @@ export class Bot {
         scoreCount.set(game.numPegsLeft(), 0);
       }
 
-      scoreCount.set(game.numPegsLeft(), scoreCount.get(game.numPegsLeft()) + 1)
+      scoreCount.set(
+        game.numPegsLeft(),
+        scoreCount.get(game.numPegsLeft()) + 1
+      );
     }
 
     // console.log(results.map(game => game.numPegsLeft()));
 
     const entries = [...scoreCount.entries()];
     entries.sort((a, b) => a[0] - b[0]);
-    entries.forEach(entry => console.log(`${entry[0]}: ${entry[1]}`));
+    //entries.forEach(entry => console.log(`${entry[0]}: ${entry[1]}`));
   }
-
 }
