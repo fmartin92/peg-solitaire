@@ -7,6 +7,7 @@ import {
   maximizeDescendents,
   randomChoice,
   randomizedMaximizeDescendents,
+  randomizedMaximizeDescendentsFewConnectedComponents,
 } from "./Heuristics";
 import { DecisionNode } from "./DecisionNode";
 
@@ -17,6 +18,7 @@ window.randomChoice = randomChoice;
 window.DecisionNode = DecisionNode;
 window.maximizeDescendents = maximizeDescendents;
 window.randomizedMaximizeDescendents = randomizedMaximizeDescendents;
+window.randomizedMaximizeDescendentsFewConnectedComponents = randomizedMaximizeDescendentsFewConnectedComponents;
 window.game = new Game();
 window.tree = new DecisionNode(window.game, 2);
 

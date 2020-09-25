@@ -45,3 +45,31 @@ export function randomizedMaximizeDescendents(gameNode, params) {
   }
   return gameNode.children[i];
 }
+
+export function randomizedMaximizeDescendentsFewConnectedComponents(gameNode, params) {
+  params = {
+    height: 4,
+    pow: 20,
+    maxConnectedComponents: 3,
+    ...params
+  };
+
+  gameNode.extendTree(params.height);
+
+  let children = gameNode.children.filter(
+    child => child.game.getNumConnectedComponents() <= params.maxConnectedComponents);
+  if (children.length === 0) children = gameNode.children;
+
+  const scores = children.map((child) =>
+    Math.pow(child.getSubtreeSize(), params.pow)
+  );
+  const sumOfScores = scores.reduce((x, y) => x + y, 0);
+  const randomValue = Math.random() * sumOfScores;
+  let total = 0;
+  let i = -1;
+  while (total <= randomValue) {
+    i++;
+    total += scores[i];
+  }
+  return children[i];
+}

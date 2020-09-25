@@ -3,7 +3,7 @@ export const RIGHT = "right";
 export const DOWN = "down";
 export const LEFT = "left";
 
-const INVALID_SQUARE = " ";
+// const INVALID_SQUARE = " ";
 const EMPTY_SQUARE = ".";
 const PEG_SQUARE = "X";
 
@@ -85,7 +85,7 @@ export class Game {
   }
 
   isOver() {
-    return this.getPossibleMoves().length == 0;
+    return this.getPossibleMoves().length === 0;
   }
 
   _get(x, y) {
@@ -96,10 +96,8 @@ export class Game {
     const [x1, y1] = this._computeDstSquare(x, y, direction);
     const [x2, y2] = this._computeDstSquare(x1, y1, direction);
 
-    const isValidSquare = (x, y) => x >= 0 && x <= 6 && y >= 0 && y <= 6;
-
-    if (!isValidSquare(x, y)) return false;
-    if (!isValidSquare(x2, y2)) return false;
+    if (!this._isWithinBounds(x, y)) return false;
+    if (!this._isWithinBounds(x2, y2)) return false;
 
     if (this._get(x, y) !== PEG_SQUARE) return false;
     if (this._get(x1, y1) !== PEG_SQUARE) return false;
@@ -108,10 +106,60 @@ export class Game {
     return true;
   }
 
+  _isWithinBounds(x, y) {
+    return x >= 0 && x <= 6 && y >= 0 && y <= 6;
+  }
+
+  _isPeg(x, y) {
+    return this._isWithinBounds(x, y) && this._get(x, y) === PEG_SQUARE;
+  }
+
+  _getNeighborPegs(x, y) {
+    const neighborPegs = [];
+    const addCoordIfNeighborPeg = (x, y) => {
+      if (this._isPeg(x, y)) {
+        neighborPegs.push([x, y]);
+      }
+    };
+    addCoordIfNeighborPeg(x, y - 1);
+    addCoordIfNeighborPeg(x + 1, y);
+    addCoordIfNeighborPeg(x, y + 1);
+    addCoordIfNeighborPeg(x - 1, y);
+    return neighborPegs;
+  }
+
+  _bfs(x, y, visitedCoords) {
+    const queue = [[x, y]];
+    while (queue.length !== 0) {
+      const [curX, curY] = queue.shift();
+      const coordAsString = `${curX},${curY}`;
+      if (!visitedCoords.has(coordAsString)) {
+        visitedCoords.add(coordAsString);
+        this._getNeighborPegs(curX, curY)
+            .filter((coord) => !visitedCoords.has(`${coord[0]},${coord[1]}`))
+            .forEach((coord) => queue.push(coord));
+      }
+    }
+  }
+
+  getNumConnectedComponents() {
+    let numConnectedComponents = 0;
+    const visitedCoords = new Set();
+    for(let y = 0; y < 7; y++) {
+      for(let x = 0; x < 7; x++) {
+        if (this._isPeg(x, y) && !visitedCoords.has(`${x},${y}`)) {
+          numConnectedComponents++;
+          this._bfs(x, y, visitedCoords);
+        }
+      }
+    }
+    return numConnectedComponents;
+  }
+
   numPegsLeft() {
     return this.toString()
       .split("")
-      .filter((c) => c == PEG_SQUARE).length;
+      .filter((c) => c === PEG_SQUARE).length;
   }
 
   toString() {
