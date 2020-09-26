@@ -1,15 +1,15 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { Game } from "./Game";
-import { Bot } from "./Bot";
+import { Game } from "./game/Game";
+import { Bot } from "./game/Bot";
 import {
   maximizeDescendents,
   randomChoice,
   randomizedMaximizeDescendents,
   randomizedMaximizeDescendentsFewConnectedComponents,
-} from "./Heuristics";
-import { DecisionNode } from "./DecisionNode";
+} from "./game/Heuristics";
+import { DecisionNode } from "./game/DecisionNode";
 
 //hackity hack to be able to debug using the console
 window.Game = Game;
