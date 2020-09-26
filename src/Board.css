@@ -1,0 +1,27 @@
+.board {
+  --cell-size: 70px;
+
+  display: grid;
+  grid-template-columns: var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size);
+  grid-template-rows: var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size);
+}
+
+.cell {
+  border: 1px solid black;
+}
+
+.cell.invalid-square {
+  background-color: black;
+}
+
+.cell.empty-square::before {
+}
+
+.cell.peg-square {
+  font-weight: bold;
+  background-color: red;
+}
+
+.cell.peg-square::before {
+  content: "O";
+}

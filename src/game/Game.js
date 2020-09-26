@@ -3,9 +3,9 @@ export const RIGHT = "right";
 export const DOWN = "down";
 export const LEFT = "left";
 
-// const INVALID_SQUARE = " ";
-const EMPTY_SQUARE = ".";
-const PEG_SQUARE = "X";
+export const INVALID_SQUARE = " ";
+export const EMPTY_SQUARE = ".";
+export const PEG_SQUARE = "X";
 
 const INITIAL_BOARD = [
   "  XXX  ",
@@ -88,7 +88,7 @@ export class Game {
     return this.getPossibleMoves().length === 0;
   }
 
-  _get(x, y) {
+  get(x, y) {
     return this._board[y][x];
   }
 
@@ -99,9 +99,9 @@ export class Game {
     if (!this._isWithinBounds(x, y)) return false;
     if (!this._isWithinBounds(x2, y2)) return false;
 
-    if (this._get(x, y) !== PEG_SQUARE) return false;
-    if (this._get(x1, y1) !== PEG_SQUARE) return false;
-    if (this._get(x2, y2) !== EMPTY_SQUARE) return false;
+    if (this.get(x, y) !== PEG_SQUARE) return false;
+    if (this.get(x1, y1) !== PEG_SQUARE) return false;
+    if (this.get(x2, y2) !== EMPTY_SQUARE) return false;
 
     return true;
   }
@@ -111,7 +111,7 @@ export class Game {
   }
 
   _isPeg(x, y) {
-    return this._isWithinBounds(x, y) && this._get(x, y) === PEG_SQUARE;
+    return this._isWithinBounds(x, y) && this.get(x, y) === PEG_SQUARE;
   }
 
   _getNeighborPegs(x, y) {
