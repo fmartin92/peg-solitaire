@@ -1,30 +1,27 @@
 import React from "react";
 import "./Board.css";
-import { Game, INVALID_SQUARE, EMPTY_SQUARE, PEG_SQUARE } from "./game/Game";
+import { INVALID_SQUARE, EMPTY_SQUARE, PEG_SQUARE } from "./game/Game";
 
 export class Board extends React.Component {
-
   // constructor(props) {
   //   super(props);
   // }
 
   render() {
     const coords = [];
-    for(let y = 0; y < 7; y++) {
-      for(let x = 0; x < 7; x++) {
+    for (let y = 0; y < 7; y++) {
+      for (let x = 0; x < 7; x++) {
         coords.push([x, y]);
       }
     }
 
-    const game = new Game();
-
     return (
       <div className="board">
-        {coords.map(coord => {
+        {coords.map((coord) => {
           const [x, y] = coord;
 
           let cellCssClass;
-          switch (game.get(x, y)) {
+          switch (this.props.game.get(x, y)) {
             case INVALID_SQUARE:
               cellCssClass = "invalid-square";
               break;
@@ -35,15 +32,14 @@ export class Board extends React.Component {
               cellCssClass = "peg-square";
               break;
             default:
-              throw new Error(`invalid square at ${x}, ${y}: "${game.get(x, y)}"`);
+              throw new Error(
+                `invalid square at ${x}, ${y}: "${this.props.game.get(x, y)}"`
+              );
           }
 
-          return (
-            <div className={"cell " + cellCssClass}></div>
-          );
+          return <div className={"cell " + cellCssClass}></div>;
         })}
       </div>
-      );
+    );
   }
-
 }
