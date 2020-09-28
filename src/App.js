@@ -36,15 +36,16 @@ class App extends React.Component {
   restart() {
     this.setState({ gameTree: new DecisionNode(new Game(), 1), isOver: false });
   }
+
   render() {
     return (
       <div className="App">
-        <Board game={this.state.gameTree.game} />
+        <Board game={this.state.gameTree.game} gameChangedCb={(newGame) => this.onGameChange(newGame)} />
         <button
           onClick={() => {
             this.newMovement();
           }}
-          disabled={this.state.isOver}
+          disabled={this.state.gameTree.game.isOver()}
         >
           Nuevo movimiento
         </button>
@@ -52,12 +53,16 @@ class App extends React.Component {
           onClick={() => {
             this.restart();
           }}
-          disabled={!this.state.isOver}
+          disabled={!this.state.gameTree.game.isOver()}
         >
           Reiniciar
         </button>
       </div>
     );
+  }
+
+  onGameChange(newGame) {
+    this.setState({gameTree: new DecisionNode(newGame, 1)});
   }
 }
 

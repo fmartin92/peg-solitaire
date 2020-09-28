@@ -25,3 +25,7 @@
 .cell.peg-square::before {
   content: "O";
 }
+
+.cell.candidate-move {
+  background-color: yellow;
+}

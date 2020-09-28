@@ -50,6 +50,13 @@ export class Game {
     return [dstX, dstY];
   }
 
+  // moveTo(srcX, srcY, dstX, dstY) {
+  //   if (!isValid) {
+  //     return null;
+  //   }
+  //   // TODO
+  // }
+
   move(x, y, direction) {
     if (!this._isValidMove(x, y, direction)) {
       throw new Error("Invalid move");
@@ -66,6 +73,18 @@ export class Game {
     set(x2, y2, PEG_SQUARE);
 
     return new Game(newBoard);
+  }
+
+  getValidMovesAt(x, y) {
+    const moves = [];
+    [UP, RIGHT, DOWN, LEFT].forEach((direction) => {
+      if (this._isValidMove(x, y, direction)) {
+        const [x1, y1] = this._computeDstSquare(x, y, direction);
+        const [x2, y2] = this._computeDstSquare(x1, y1, direction);
+        moves.push([x2, y2]);
+      }
+    });
+    return moves;
   }
 
   getPossibleMoves() {
