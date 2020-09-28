@@ -19,11 +19,15 @@
 
 .cell.peg-square {
   font-weight: bold;
-  background-color: red;
+  background-color: #FFAAAA;
 }
 
 .cell.peg-square::before {
   content: "O";
+}
+
+.cell.selected {
+  background-color: red;
 }
 
 .cell.candidate-move {

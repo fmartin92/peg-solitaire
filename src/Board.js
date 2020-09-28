@@ -26,16 +26,17 @@ export class Board extends React.Component {
         {coords.map((coord) => {
           const [x, y] = coord;
 
-          let cellCssClass;
+          const cssClassNames = [];
+
           switch (this.props.game.get(x, y)) {
             case INVALID_SQUARE:
-              cellCssClass = "invalid-square";
+              cssClassNames.push('invalid-square');
               break;
-            case EMPTY_SQUARE:
-              cellCssClass = "empty-square";
-              break;
-            case PEG_SQUARE:
-              cellCssClass = "peg-square";
+              case EMPTY_SQUARE:
+                cssClassNames.push('empty-square');
+                break;
+              case PEG_SQUARE:
+                cssClassNames.push('peg-square');
               break;
             default:
               throw new Error(
@@ -43,9 +44,13 @@ export class Board extends React.Component {
               );
           }
 
+          if (this.isCandidateMove(x, y)) cssClassNames.push('candidate-move');
+
+          if(x === this.state.moveSrcX && y === this.state.moveSrcY) cssClassNames.push('selected');
+
           return (
             <div key={`${x},${y}`}
-                 className={`cell ${cellCssClass} ${this.isCandidateMove(x, y) ? 'candidate-move' : ''}`}
+                 className={`cell ${cssClassNames.join(' ')}`}
                  onClick={(event) => this.onCellClick(x, y)}>
             </div>
           );

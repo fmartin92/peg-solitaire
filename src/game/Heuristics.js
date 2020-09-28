@@ -4,14 +4,14 @@ function randomElement(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-export function randomChoice(gameNode, params) {
+export function randomChoice(gameNode) {
   if (!gameNode.children) {
     gameNode = new DecisionNode(gameNode.game, 2);
   }
   return randomElement(gameNode.children);
 }
 
-export function maximizeDescendents(gameNode, params) {
+export function maximizeDescendents(gameNode, params = {}) {
   if (!params.height) {
     params.height = 3;
   }
