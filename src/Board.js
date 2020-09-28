@@ -55,7 +55,6 @@ export class Board extends React.Component {
   }
 
   onCellClick(x, y) {
-    console.log(`cell ${x}, ${y} clicked`);
     if (this.state.moving) {
       this.finishMove(x, y)
     } else {
@@ -94,10 +93,6 @@ export class Board extends React.Component {
 
       const newGame = this.props.game.move(this.state.moveSrcX, this.state.moveSrcY, direction);
       this.props.gameChangedCb(newGame);
-      
-      console.log(`moviendo de ${this.state.moveSrcX}, ${this.state.moveSrcY} a ${x}, ${y}.`);
-    } else {
-      console.log(`la celda destino ${x}, ${y} no es valida`);
     }
     this.setState({
       candidateMoves: [],
