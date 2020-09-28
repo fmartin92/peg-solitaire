@@ -7,6 +7,8 @@ export const INVALID_SQUARE = " ";
 export const EMPTY_SQUARE = ".";
 export const PEG_SQUARE = "X";
 
+export const BOARD_SIDE_LENGTH = 7;
+
 const INITIAL_BOARD = [
   "  XXX  ",
   "  XXX  ",
@@ -17,8 +19,6 @@ const INITIAL_BOARD = [
   "  XXX  ",
 ].map((line) => line.split(""));
 
-const BOARD_SIDE_LENGTH = 7;
-
 const deepCopy = (object) => JSON.parse(JSON.stringify(object));
 
 export class Game {
@@ -26,77 +26,101 @@ export class Game {
     this._board = board ? board : deepCopy(INITIAL_BOARD);
   }
 
-  _computeDstSquare(x, y, direction) {
-    let dstX = x,
-      dstY = y;
+  _computeDstSquare(row, col, direction) {
+    /*returns the square you get after you moved from the square at indicated
+      row and col in the given direction*/
+    let dstRow = row,
+      dstCol = col;
 
     switch (direction) {
       case UP:
-        dstY--;
+        dstRow--;
         break;
       case RIGHT:
-        dstX++;
+        dstCol++;
         break;
       case DOWN:
-        dstY++;
+        dstRow++;
         break;
       case LEFT:
-        dstX--;
+        dstCol--;
         break;
       default:
         throw new Error(`${direction} is not a valid direction`);
     }
 
-    return [dstX, dstY];
+    return [dstRow, dstCol];
   }
 
-  // moveTo(srcX, srcY, dstX, dstY) {
-  //   if (!isValid) {
-  //     return null;
-  //   }
-  //   // TODO
-  // }
+  _computeIntermediateDstSquare(srcRow, srcCol, dstRow, dstCol) {
+    /*returns the square in between a source square and a jump target square*/
+    return [(srcRow + dstRow) / 2, (srcCol + dstCol) / 2];
+  }
 
-  move(x, y, direction) {
-    if (!this._isValidMove(x, y, direction)) {
+  _computeJumpDstSquare(row, col, direction) {
+    /*returns the square you get after you moved *twice* from the square at indicated
+      row and col in the given direction*/
+    const [row1, col1] = this._computeDstSquare(row, col, direction);
+    return this._computeDstSquare(row1, col1, direction);
+  }
+
+  moveTo(srcRow, srcCol, dstRow, dstCol) {
+    /*validates the move and returns a new Game instance with that move played*/
+    if (!this._isValidMove(srcRow, srcCol, dstRow, dstCol)) {
       throw new Error("Invalid move");
     }
-
-    const [x1, y1] = this._computeDstSquare(x, y, direction);
-    const [x2, y2] = this._computeDstSquare(x1, y1, direction);
-
     const newBoard = deepCopy(this._board);
-    const set = (x, y, value) => (newBoard[y][x] = value);
+    const set = (row, col, value) => (newBoard[row][col] = value);
 
-    set(x, y, EMPTY_SQUARE);
-    set(x1, y1, EMPTY_SQUARE);
-    set(x2, y2, PEG_SQUARE);
+    const [
+      intermediateRow,
+      intermediateCol,
+    ] = this._computeIntermediateDstSquare(srcRow, srcCol, dstRow, dstCol);
+
+    set(srcRow, srcCol, EMPTY_SQUARE);
+    set(intermediateRow, intermediateCol, EMPTY_SQUARE);
+    set(dstRow, dstCol, PEG_SQUARE);
 
     return new Game(newBoard);
   }
 
-  getValidMovesAt(x, y) {
+  _isValidMove(srcRow, srcCol, dstRow, dstCol) {
+    const [
+      intermediateRow,
+      intermediateCol,
+    ] = this._computeIntermediateDstSquare(srcRow, srcCol, dstRow, dstCol);
+
+    if (!this._isWithinBounds(srcRow, srcCol)) return false;
+    if (!this._isWithinBounds(dstRow, dstCol)) return false;
+
+    if (this.get(srcRow, srcCol) !== PEG_SQUARE) return false;
+    if (this.get(intermediateRow, intermediateCol) !== PEG_SQUARE) return false;
+    if (this.get(dstRow, dstCol) !== EMPTY_SQUARE) return false;
+
+    return true;
+  }
+
+  getValidMovesAt(row, col) {
     const moves = [];
     [UP, RIGHT, DOWN, LEFT].forEach((direction) => {
-      if (this._isValidMove(x, y, direction)) {
-        const [x1, y1] = this._computeDstSquare(x, y, direction);
-        const [x2, y2] = this._computeDstSquare(x1, y1, direction);
-        moves.push([x2, y2]);
+      const [dstRow, dstCol] = this._computeJumpDstSquare(row, col, direction);
+      if (this._isValidMove(row, col, dstRow, dstCol)) {
+        moves.push([dstRow, dstCol]);
       }
     });
     return moves;
   }
 
   getPossibleMoves() {
-    const moves = [];
+    let moves = [];
 
-    for (let y = 0; y < BOARD_SIDE_LENGTH; y++) {
-      for (let x = 0; x < BOARD_SIDE_LENGTH; x++) {
-        [UP, RIGHT, DOWN, LEFT].forEach((direction) => {
-          if (this._isValidMove(x, y, direction)) {
-            moves.push(this.move(x, y, direction));
-          }
-        });
+    for (let row = 0; row < BOARD_SIDE_LENGTH; row++) {
+      for (let col = 0; col < BOARD_SIDE_LENGTH; col++) {
+        moves = moves.concat(
+          this.getValidMovesAt(row, col).map(([dstRow, dstCol]) =>
+            this.moveTo(row, col, dstRow, dstCol)
+          )
+        );
       }
     }
 
@@ -107,56 +131,44 @@ export class Game {
     return this.getPossibleMoves().length === 0;
   }
 
-  get(x, y) {
-    return this._board[y][x];
+  get(row, col) {
+    return this._board[row][col];
   }
 
-  _isValidMove(x, y, direction) {
-    const [x1, y1] = this._computeDstSquare(x, y, direction);
-    const [x2, y2] = this._computeDstSquare(x1, y1, direction);
-
-    if (!this._isWithinBounds(x, y)) return false;
-    if (!this._isWithinBounds(x2, y2)) return false;
-
-    if (this.get(x, y) !== PEG_SQUARE) return false;
-    if (this.get(x1, y1) !== PEG_SQUARE) return false;
-    if (this.get(x2, y2) !== EMPTY_SQUARE) return false;
-
-    return true;
+  _isWithinBounds(row, col) {
+    return (
+      row >= 0 && row < BOARD_SIDE_LENGTH && col >= 0 && col < BOARD_SIDE_LENGTH
+    );
   }
 
-  _isWithinBounds(x, y) {
-    return x >= 0 && x <= 6 && y >= 0 && y <= 6;
+  _isPeg(row, col) {
+    return this._isWithinBounds(row, col) && this.get(row, col) === PEG_SQUARE;
   }
 
-  _isPeg(x, y) {
-    return this._isWithinBounds(x, y) && this.get(x, y) === PEG_SQUARE;
-  }
-
-  _getNeighborPegs(x, y) {
+  _getNeighborPegs(row, col) {
     const neighborPegs = [];
-    const addCoordIfNeighborPeg = (x, y) => {
-      if (this._isPeg(x, y)) {
-        neighborPegs.push([x, y]);
+    const addCoordIfNeighborPeg = (row, col) => {
+      if (this._isPeg(row, col)) {
+        neighborPegs.push([row, col]);
       }
     };
-    addCoordIfNeighborPeg(x, y - 1);
-    addCoordIfNeighborPeg(x + 1, y);
-    addCoordIfNeighborPeg(x, y + 1);
-    addCoordIfNeighborPeg(x - 1, y);
+    addCoordIfNeighborPeg(row, col - 1);
+    addCoordIfNeighborPeg(row + 1, col);
+    addCoordIfNeighborPeg(row, col + 1);
+    addCoordIfNeighborPeg(row - 1, col);
     return neighborPegs;
   }
 
-  _bfs(x, y, visitedCoords) {
-    const queue = [[x, y]];
+  _bfs(row, col, visitedCoords) {
+    const queue = [[row, col]];
     while (queue.length !== 0) {
-      const [curX, curY] = queue.shift();
-      const coordAsString = `${curX},${curY}`;
+      const [curRow, curCol] = queue.shift();
+      const coordAsString = `${curRow},${curCol}`;
       if (!visitedCoords.has(coordAsString)) {
         visitedCoords.add(coordAsString);
-        this._getNeighborPegs(curX, curY)
-            .filter((coord) => !visitedCoords.has(`${coord[0]},${coord[1]}`))
-            .forEach((coord) => queue.push(coord));
+        this._getNeighborPegs(curRow, curCol)
+          .filter((coord) => !visitedCoords.has(`${coord[0]},${coord[1]}`))
+          .forEach((coord) => queue.push(coord));
       }
     }
   }
@@ -164,11 +176,11 @@ export class Game {
   getNumConnectedComponents() {
     let numConnectedComponents = 0;
     const visitedCoords = new Set();
-    for(let y = 0; y < 7; y++) {
-      for(let x = 0; x < 7; x++) {
-        if (this._isPeg(x, y) && !visitedCoords.has(`${x},${y}`)) {
+    for (let row = 0; row < BOARD_SIDE_LENGTH; row++) {
+      for (let col = 0; col < BOARD_SIDE_LENGTH; col++) {
+        if (this._isPeg(row, col) && !visitedCoords.has(`${row},${col}`)) {
           numConnectedComponents++;
-          this._bfs(x, y, visitedCoords);
+          this._bfs(row, col, visitedCoords);
         }
       }
     }

@@ -1,113 +1,114 @@
 import React from "react";
 import "./Board.css";
-import { UP, RIGHT, DOWN, LEFT, INVALID_SQUARE, EMPTY_SQUARE, PEG_SQUARE } from "./game/Game";
+import {
+  INVALID_SQUARE,
+  EMPTY_SQUARE,
+  PEG_SQUARE,
+  BOARD_SIDE_LENGTH,
+} from "./game/Game";
+
+const INITIAL_STATE = {
+  candidateMoves: [],
+  moving: false,
+  moveSrcRow: -1,
+  moveSrcCol: -1,
+};
 
 export class Board extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      candidateMoves: [],
-      moving: false,
-      moveSrcX: -1,
-      moveSrcY: -1,
-    };
+    this.state = INITIAL_STATE;
   }
 
   render() {
     const coords = [];
-    for (let y = 0; y < 7; y++) {
-      for (let x = 0; x < 7; x++) {
-        coords.push([x, y]);
+    for (let row = 0; row < BOARD_SIDE_LENGTH; row++) {
+      for (let col = 0; col < BOARD_SIDE_LENGTH; col++) {
+        coords.push([row, col]);
       }
     }
 
     return (
       <div className="board">
         {coords.map((coord) => {
-          const [x, y] = coord;
+          const [row, col] = coord;
 
           const cssClassNames = [];
 
-          switch (this.props.game.get(x, y)) {
+          switch (this.props.game.get(row, col)) {
             case INVALID_SQUARE:
-              cssClassNames.push('invalid-square');
+              cssClassNames.push("invalid-square");
               break;
-              case EMPTY_SQUARE:
-                cssClassNames.push('empty-square');
-                break;
-              case PEG_SQUARE:
-                cssClassNames.push('peg-square');
+            case EMPTY_SQUARE:
+              cssClassNames.push("empty-square");
+              break;
+            case PEG_SQUARE:
+              cssClassNames.push("peg-square");
               break;
             default:
               throw new Error(
-                `invalid square at ${x}, ${y}: "${this.props.game.get(x, y)}"`
+                `invalid square at ${row}, ${col}: "${this.props.game.get(
+                  row,
+                  col
+                )}"`
               );
           }
 
-          if (this.isCandidateMove(x, y)) cssClassNames.push('candidate-move');
+          if (this.isCandidateMove(row, col))
+            cssClassNames.push("candidate-move");
 
-          if(x === this.state.moveSrcX && y === this.state.moveSrcY) cssClassNames.push('selected');
+          if (row === this.state.moveSrcRow && col === this.state.moveSrcCol)
+            cssClassNames.push("selected");
 
           return (
-            <div key={`${x},${y}`}
-                 className={`cell ${cssClassNames.join(' ')}`}
-                 onClick={(event) => this.onCellClick(x, y)}>
-            </div>
+            <div
+              key={`${row},${col}`}
+              className={`cell ${cssClassNames.join(" ")}`}
+              onClick={(event) => this.onCellClick(row, col)}
+            ></div>
           );
         })}
       </div>
     );
   }
 
-  onCellClick(x, y) {
+  onCellClick(row, col) {
     if (this.state.moving) {
-      this.finishMove(x, y)
+      this.finishMove(row, col);
     } else {
-      if (this.props.game.get(x, y) !== PEG_SQUARE) return;
-      this.startMove(x, y)
+      if (this.props.game.get(row, col) !== PEG_SQUARE) return;
+      this.startMove(row, col);
     }
   }
-  
-  startMove(x, y) {
-    const candidateMoves = this.props.game.getValidMovesAt(x, y);
+
+  startMove(row, col) {
+    const candidateMoves = this.props.game.getValidMovesAt(row, col);
     if (candidateMoves.length > 0) {
       this.setState({
         candidateMoves: candidateMoves,
         moving: true,
-        moveSrcX: x,
-        moveSrcY: y,
+        moveSrcRow: row,
+        moveSrcCol: col,
       });
     }
   }
-  
-  finishMove(x, y) {
-    if (this.isCandidateMove(x, y)) {
-      let direction;
-      if (y < this.state.moveSrcY) {
-        direction = UP;
-      }
-      if (x > this.state.moveSrcX) {
-        direction = RIGHT;
-      }
-      if (y > this.state.moveSrcY) {
-        direction = DOWN;
-      }      
-      if (x < this.state.moveSrcX) {
-        direction = LEFT;
-      }
 
-      const newGame = this.props.game.move(this.state.moveSrcX, this.state.moveSrcY, direction);
+  finishMove(row, col) {
+    if (this.isCandidateMove(row, col)) {
+      const newGame = this.props.game.moveTo(
+        this.state.moveSrcRow,
+        this.state.moveSrcCol,
+        row,
+        col
+      );
       this.props.gameChangedCb(newGame);
     }
-    this.setState({
-      candidateMoves: [],
-      moving: false,
-      moveSrcX: -1,
-      moveSrcY: -1,
-    });
+    this.setState(INITIAL_STATE);
   }
 
-  isCandidateMove(x, y) {
-    return !!this.state.candidateMoves.find(move => move[0] === x && move[1] === y);
+  isCandidateMove(row, col) {
+    return !!this.state.candidateMoves.find(
+      (move) => move[0] === row && move[1] === col
+    );
   }
 }
