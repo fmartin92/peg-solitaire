@@ -1,0 +1,30 @@
+.debug-tools {
+  border: 1px solid black;
+  display: flex;
+  flex-direction: row;
+}
+
+.debug-tools .inputs {
+  flex-grow: 1;
+}
+
+.debug-tools .output {
+  flex-grow: 1;
+}
+
+.debug-tools .non-empty-output {
+  display: flex;
+  flex-direction: row;
+}
+
+.debug-tools table {
+  margin: 0 10px;
+}
+
+.debug-tools table caption {
+  font-weight: bold;
+}
+
+.debug-tools .histogram-bar {
+  font-family: 'Courier New', Courier, monospace;
+}

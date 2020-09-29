@@ -7,44 +7,33 @@ export class Bot {
     this._params = params;
   }
 
-  run(print = false) {
+  run() {
     let game = new Game();
-    let gameTree = new DecisionNode(game);
-
-    const printGame = (game) => {
-      if (!print) return;
-      console.log(`PEGS LEFT: ${game.numPegsLeft()}`);
-      console.log(game.toString());
-    };
-
-    while (!gameTree.game.isOver()) {
-      printGame(gameTree.game);
-      gameTree = this._heuristic(gameTree, this._params);
+    let decisionNode = new DecisionNode(game);
+    while (!decisionNode.game.isOver()) {
+      decisionNode = this._heuristic(decisionNode, this._params);
     }
-    printGame(gameTree.game);
+    return decisionNode.game;
+  }
 
-    return gameTree.game;
+  get scores() {
+    return this._scores || [];
+  }
+
+  get times() {
+    return this._times || [];
   }
 
   runMany(n) {
-    const results = [];
-    const scoreCount = new Map();
+    this._scores = [];
+    this._times = [];
     for (let i = 0; i < n; i++) {
+      const t0 = performance.now();
       const game = this.run();
-      results.push(game);
+      const t1 = performance.now();
 
-      if (!scoreCount.has(game.numPegsLeft())) {
-        scoreCount.set(game.numPegsLeft(), 0);
-      }
-
-      scoreCount.set(
-        game.numPegsLeft(),
-        scoreCount.get(game.numPegsLeft()) + 1
-      );
+      this._scores.push(game.numPegsLeft());
+      this._times.push(t1 - t0);
     }
-
-    const entries = [...scoreCount.entries()];
-    entries.sort((a, b) => a[0] - b[0]);
-    return entries;
   }
 }

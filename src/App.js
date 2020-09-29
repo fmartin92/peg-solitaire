@@ -1,38 +1,11 @@
 import React from "react";
 import "./App.css";
 import { Game } from "./game/Game";
-import {
-  maximizeDescendents,
-  randomChoice,
-  randomizedMaximizeDescendents,
-  randomizedMaximizeDescendentsFewConnectedComponents,
-} from "./game/Heuristics";
+import { ALGORITHMS, DEFAULT_ALGORITHM } from "./game/Heuristics";
 import { DecisionNode } from "./game/DecisionNode";
 import { Board } from "./Board";
-
-//hackity hack to be able to debug using the console
-// window.Game = Game;
-// window.Bot = Bot;
-// window.randomChoice = randomChoice;
-// window.DecisionNode = DecisionNode;
-// window.maximizeDescendents = maximizeDescendents;
-// window.randomizedMaximizeDescendents = randomizedMaximizeDescendents;
-// window.randomizedMaximizeDescendentsFewConnectedComponents = randomizedMaximizeDescendentsFewConnectedComponents;
-// window.game = new Game();
-// window.tree = new DecisionNode(window.game, 2);
-
-const ALGORITHMS = new Map();
-ALGORITHMS.set("Maximize descendents", maximizeDescendents);
-ALGORITHMS.set("Random choice", randomChoice);
-ALGORITHMS.set(
-  "Randomized maximize descendents",
-  randomizedMaximizeDescendents
-);
-ALGORITHMS.set(
-  "Few connected components",
-  randomizedMaximizeDescendentsFewConnectedComponents
-);
-const DEFAULT_ALGORITHM = "Maximize descendents";
+import { DebugTools } from "./DebugTools";
+import { AlgorithmSelector } from "./AlgorithmSelector";
 
 class App extends React.Component {
   constructor(props) {
@@ -56,45 +29,36 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="App">
-        <Board
-          game={this.state.gameTree.game}
-          gameChangedCb={(newGame) => this.onGameChange(newGame)}
-        />
-        <button
-          onClick={() => this.newMovement()}
-          disabled={this.state.gameTree.game.isOver()}
-        >
-          Nuevo movimiento
-        </button>
-        <button onClick={() => this.restart()}>Reiniciar</button>
-        <select
-          value={this.state.algorithm}
-          onChange={(event) => this.onAlgorithmChange(event)}
-        >
-          {Array.from(ALGORITHMS).map((entry) => (
-            <option key={entry[0]} value={entry[0]}>
-              {entry[0]}
-            </option>
-          ))}
-        </select>
+      <div className="app">
+        <div className="board-and-controls">
+          <Board
+            game={this.state.gameTree.game}
+            gameChangedCb={(newGame) => this.onGameChange(newGame)}
+          />
+          <div className="controls">
+            <button
+              onClick={() => this.newMovement()}
+              disabled={this.state.gameTree.game.isOver()}
+            >
+              Nuevo movimiento
+            </button>
+            <AlgorithmSelector
+              value={this.state.algorithm}
+              onAlgorithmChange={algorithm => this.onAlgorithmChange(algorithm)}/>
+            <button onClick={() => this.restart()}>Reiniciar</button>
+          </div>
+        </div>
+        <DebugTools />
       </div>
     );
   }
-
-  /*
-  maximizeDescendents,
-  randomChoice,
-  randomizedMaximizeDescendents,
-  randomizedMaximizeDescendentsFewConnectedComponents,
-*/
 
   onGameChange(newGame) {
     this.setState({ gameTree: new DecisionNode(newGame, 1) });
   }
 
-  onAlgorithmChange(event) {
-    this.setState({ algorithm: event.target.value });
+  onAlgorithmChange(algorithm) {
+    this.setState({ algorithm: algorithm });
   }
 }
 
