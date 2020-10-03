@@ -25,31 +25,40 @@ export class DebugTools extends React.Component {
             Algorithm:
             <AlgorithmSelector
               value={this.state.algorithm}
-              onAlgorithmChange={(algorithm) => this.setState({algorithm: algorithm})} />
+              onAlgorithmChange={(algorithm) =>
+                this.setState({ algorithm: algorithm })
+              }
+            />
           </p>
 
           <p>
             Number of iterations:
-            <input type="number"
-                   min="1"
-                   value={this.state.numIterations}
-                   onChange={(event) => this.setState({numIterations: event.target.value}) }/>
+            <input
+              type="number"
+              min="1"
+              value={this.state.numIterations}
+              onChange={(event) =>
+                this.setState({ numIterations: event.target.value })
+              }
+            />
           </p>
 
           <button onClick={() => this.run()}>Run</button>
         </div>
         <div className="output">
-          {this.state.scores.length > 0 ? this.nonEmptyOutput() : this.emptyOutput()}
+          {this.state.scores.length > 0
+            ? this.nonEmptyOutput()
+            : this.emptyOutput()}
         </div>
       </div>
-    )
+    );
   }
 
   emptyOutput() {
     return (
       <div>
-          <p>El algoritmo es: {this.state.algorithm}</p>
-          <p>Numero de iteraciones: {this.state.numIterations}</p>
+        <p>Selected algorithm: {this.state.algorithm}</p>
+        <p>Number of iterations: {this.state.numIterations}</p>
       </div>
     );
   }
@@ -60,9 +69,9 @@ export class DebugTools extends React.Component {
 
     return (
       <div className="non-empty-output">
-        {this.statsTable(timeStats, 'Time stats')}
+        {this.statsTable(timeStats, "Time stats")}
 
-        {this.statsTable(scoresStats, 'Scores stats')}
+        {this.statsTable(scoresStats, "Scores stats")}
 
         <table>
           <caption>Scores histogram</caption>
@@ -131,9 +140,10 @@ export class DebugTools extends React.Component {
 
   computeStats(values) {
     const mean = values.reduce((x, y) => x + y, 0) / values.length;
-    const stdDev =
-      Math.sqrt(
-        values.reduce((prev, x) => prev + Math.pow(x - mean, 2), 0) / values.length);
+    const stdDev = Math.sqrt(
+      values.reduce((prev, x) => prev + Math.pow(x - mean, 2), 0) /
+        values.length
+    );
 
     return {
       min: Math.min(...values),
