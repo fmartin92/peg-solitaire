@@ -12,6 +12,7 @@ export class Bot {
     let decisionNode = new DecisionNode(game);
     while (!decisionNode.game.isOver()) {
       decisionNode = this._heuristic(decisionNode, this._params);
+      decisionNode.clearParent();
     }
     return decisionNode.game;
   }

@@ -1,90 +1,81 @@
-import { DecisionNode } from "./DecisionNode";
+/* in general, heuristics should accept a DecisionNode as input
+and should output a DecisionNode*/
 
 export const ALGORITHMS = new Map();
-ALGORITHMS.set("Maximize descendents", maximizeDescendents);
+ALGORITHMS.set("Maximize descendents", randomMaxDescendents);
 ALGORITHMS.set("Random choice", randomChoice);
-ALGORITHMS.set(
-  "Randomized maximize descendents",
-  randomizedMaximizeDescendents
-);
+ALGORITHMS.set("Randomized maximize descendents", randomWeightedMaxDescendents);
 ALGORITHMS.set(
   "Few connected components",
-  randomizedMaximizeDescendentsFewConnectedComponents
+  randomWeightedMaxDescendentsMinComponents
 );
 export const DEFAULT_ALGORITHM = "Maximize descendents";
 
-function randomElement(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-export function randomChoice(gameNode) {
-  if (!gameNode.children) {
-    gameNode = new DecisionNode(gameNode.game, 2);
+function randomItem(items, weightFn = () => 1) {
+  const weights = items.map(weightFn);
+  const sumOfWeights = weights.reduce((x, y) => x + y, 0);
+  const randomValue = Math.random() * sumOfWeights;
+  let total = 0;
+  let i = -1;
+  while (total <= randomValue) {
+    i++;
+    total += weights[i];
   }
-  return randomElement(gameNode.children);
+  return items[i];
 }
 
-export function maximizeDescendents(gameNode, params) {
+function maxScoringItems(items, scoreFn) {
+  const scores = items.map(scoreFn);
+  const maxScore = Math.max(...scores);
+  return items.filter((_, idx) => scores[idx] === maxScore);
+}
+
+function minScoringItems(items, scoreFn) {
+  return maxScoringItems(items, (item) => -scoreFn(item));
+}
+
+export function randomChoice(decisionNode) {
+  return randomItem(decisionNode.children);
+}
+
+export function randomMaxDescendents(decisionNode, params) {
   params = {
     height: 3,
     ...params,
   };
-  gameNode.extendTree(params.height);
-  const scores = gameNode.children.map((child) => child.getSubtreeSize());
-  const maxScore = Math.max(...scores);
-  const bestMoves = gameNode.children.filter(
-    (_, idx) => scores[idx] === maxScore
+  const candidateItems = maxScoringItems(decisionNode.children, (child) =>
+    child.getSubtreeSize(params.height)
   );
-  return randomElement(bestMoves);
+  return randomItem(candidateItems);
 }
 
-export function randomizedMaximizeDescendents(gameNode, params) {
+export function randomWeightedMaxDescendents(decisionNode, params) {
   params = {
     height: 4,
     pow: 20,
-    ...params
+    ...params,
   };
-  gameNode.extendTree(params.height);
-  const scores = gameNode.children.map((child) =>
-    Math.pow(child.getSubtreeSize(), params.pow)
+  return randomItem(decisionNode.children, (child) =>
+    Math.pow(child.getSubtreeSize(params.height), params.pow)
   );
-  const sumOfScores = scores.reduce((x, y) => x + y, 0);
-  const randomValue = Math.random() * sumOfScores;
-  let total = 0;
-  let i = -1;
-  while (total <= randomValue) {
-    i++;
-    total += scores[i];
-  }
-  return gameNode.children[i];
 }
 
-export function randomizedMaximizeDescendentsFewConnectedComponents(gameNode, params) {
+export function randomWeightedMaxDescendentsMinComponents(
+  decisionNode,
+  params
+) {
   params = {
     height: 4,
     pow: 20,
     maxConnectedComponents: 3,
-    ...params
+    ...params,
   };
 
-  gameNode.extendTree(params.height);
+  const candidateItems = minScoringItems(decisionNode.children, (child) =>
+    child.game.getNumConnectedComponents()
+  );
 
-  const numConnectedComponents =
-    gameNode.children.map(child => child.game.getNumConnectedComponents());
-  const minNumConnectedComponents = Math.min(...numConnectedComponents);
-  const children =
-    gameNode.children.filter((_, i) => numConnectedComponents[i] === minNumConnectedComponents);
-
-  const scores = children.map((child) =>
+  return randomItem(candidateItems, (child) =>
     Math.pow(child.getSubtreeSize(), params.pow)
   );
-  const sumOfScores = scores.reduce((x, y) => x + y, 0);
-  const randomValue = Math.random() * sumOfScores;
-  let total = 0;
-  let i = -1;
-  while (total <= randomValue) {
-    i++;
-    total += scores[i];
-  }
-  return children[i];
 }

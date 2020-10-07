@@ -1,41 +1,43 @@
 export class DecisionNode {
-  constructor(game, height = 1) {
-    this.game = game;
-    if (height > 1) {
-      this.children = this._getChildren(height - 1);
-    } else {
-      this.children = undefined;
+  constructor(game, parent = null) {
+    this._game = game;
+    this._parent = parent;
+    this._children = null;
+  }
+
+  get parent() {
+    return this._parent;
+  }
+
+  clearParent() {
+    this._parent = null;
+  }
+
+  get game() {
+    return this._game;
+  }
+
+  get children() {
+    if (this._children === null) {
+      this._children = this.game
+        .getPossibleMoves()
+        .map((game) => new DecisionNode(game, this));
     }
-    this.height = height;
+    return this._children;
   }
 
-  _getChildren(height) {
-    return this.game
-      .getPossibleMoves()
-      .map((game) => new DecisionNode(game, height));
-  }
-
-  getSubtreeSize() {
-    if (this.children) {
-      return (
-        1 +
-        this.children
-          .map((node) => node.getSubtreeSize())
-          .reduce((x, y) => x + y, 0)
+  getSubtreeSize(maxHeight) {
+    if (maxHeight < 1)
+      throw new Error(
+        `maxHeight should be at least 1, got ${maxHeight} instead`
       );
-    } else {
-      return 1;
-    }
+    if (maxHeight === 1) return 1;
+    return this.children
+      .map((node) => node.getSubtreeSize(maxHeight - 1))
+      .reduce((x, y) => x + y, 1);
   }
 
-  extendTree(newHeight) {
-    if (newHeight > this.height) {
-      if (this.height === 1) {
-        this.children = this._getChildren(newHeight);
-      } else {
-        this.children.forEach((node) => node.extendTree(newHeight - 1));
-      }
-    }
-    this.height = newHeight;
+  findChildByGame(game) {
+    return this.children.find((child) => child.game.equals(game));
   }
 }

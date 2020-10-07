@@ -196,4 +196,8 @@ export class Game {
   toString() {
     return this._board.map((line) => line.join("")).join("\n");
   }
+
+  equals(otherGame) {
+    return this.toString().localeCompare(otherGame.toString()) === 0;
+  }
 }

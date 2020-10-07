@@ -1,51 +1,21 @@
 import React from "react";
 import "./App.css";
-import { Game } from "./game/Game";
 import { ALGORITHMS, DEFAULT_ALGORITHM } from "./game/Heuristics";
-import { DecisionNode } from "./game/DecisionNode";
 import { Board } from "./Board";
 import { DebugTools } from "./DebugTools";
 import { AlgorithmSelector } from "./AlgorithmSelector";
+import { DecisionTree } from "./game/DecisionTree";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    const initialGame = new DecisionNode(new Game(), 1);
     this.state = {
       algorithm: DEFAULT_ALGORITHM,
-      gameHistory: [initialGame],
-      currentGameIdx: 0,
+      decisionTree: new DecisionTree(),
     };
   }
 
-  canUndo() {
-    return this.state.currentGameIdx > 0;
-  }
-
-  canRedo() {
-    return this.state.currentGameIdx < this.state.gameHistory.length - 1;
-  }
-
-  undo() {
-    if (!this.canUndo) {
-      throw new Error("Could not undo movement");
-    }
-    this.setState({ currentGameIdx: this.state.currentGameIdx - 1 });
-  }
-
-  redo() {
-    if (!this.canRedo()) {
-      throw new Error("Could not redo movement");
-    }
-    this.setState({ currentGameIdx: this.state.currentGameIdx + 1 });
-  }
-
-  restart() {
-    const initialGame = new DecisionNode(new Game(), 1);
-    this.setState({ currentGameIdx: 0, gameHistory: [initialGame] });
-  }
-
-  get decisionNode() {
+  /*get decisionNode() {
     return this.state.gameHistory[this.state.currentGameIdx];
   }
 
@@ -59,11 +29,12 @@ class App extends React.Component {
       gameHistory: newGameHistory,
       currentGameIdx: this.state.currentGameIdx + 1,
     });
-  }
+  }*/
 
   newMovement() {
-    const newGameTree = ALGORITHMS.get(this.state.algorithm)(this.decisionNode);
-    this.decisionNode = newGameTree;
+    this.state.decisionTree.move(
+      ALGORITHMS.get(this.state.algorithm)(this.state.decisionTree.currentNode)
+    );
   }
 
   render() {
@@ -71,13 +42,19 @@ class App extends React.Component {
       <div className="app">
         <div className="board-and-controls">
           <Board
-            game={this.decisionNode.game}
-            gameChangedCb={(newGame) => this.onGameChange(newGame)}
+            game={this.state.decisionTree.game}
+            gameChangedCb={(newGame) => {
+              this.onGameChange(newGame);
+              this.forceUpdate();
+            }}
           />
           <div className="controls">
             <button
-              onClick={() => this.newMovement()}
-              disabled={this.decisionNode.game.isOver()}
+              onClick={() => {
+                this.newMovement();
+                this.forceUpdate();
+              }}
+              disabled={this.state.decisionTree.game.isOver()}
             >
               New movement
             </button>
@@ -87,13 +64,32 @@ class App extends React.Component {
                 this.onAlgorithmChange(algorithm)
               }
             />
-            <button onClick={() => this.undo()} disabled={!this.canUndo()}>
+            <button
+              onClick={() => {
+                this.state.decisionTree.undo();
+                this.forceUpdate();
+              }}
+              disabled={!this.state.decisionTree.canUndo()}
+            >
               Undo
             </button>
-            <button onClick={() => this.redo()} disabled={!this.canRedo()}>
+            <button
+              onClick={() => {
+                this.state.decisionTree.redo();
+                this.forceUpdate();
+              }}
+              disabled={!this.state.decisionTree.canRedo()}
+            >
               Redo
             </button>
-            <button onClick={() => this.restart()}>Restart</button>
+            <button
+              onClick={() => {
+                this.state.decisionTree.restart();
+                this.forceUpdate();
+              }}
+            >
+              Restart
+            </button>
           </div>
         </div>
         <DebugTools />
@@ -102,7 +98,7 @@ class App extends React.Component {
   }
 
   onGameChange(newGame) {
-    this.decisionNode = new DecisionNode(newGame, 1);
+    this.state.decisionTree.move(newGame);
   }
 
   onAlgorithmChange(algorithm) {
