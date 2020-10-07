@@ -112,15 +112,27 @@ export class Game {
   }
 
   getPossibleMoves() {
-    let moves = [];
+    const moves = [];
 
-    for (let row = 0; row < BOARD_SIDE_LENGTH; row++) {
-      for (let col = 0; col < BOARD_SIDE_LENGTH; col++) {
-        moves = moves.concat(
-          this.getValidMovesAt(row, col).map(([dstRow, dstCol]) =>
-            this.moveTo(row, col, dstRow, dstCol)
-          )
-        );
+    for (let srcRow = 0; srcRow < BOARD_SIDE_LENGTH; srcRow++) {
+      for (let srcCol = 0; srcCol < BOARD_SIDE_LENGTH; srcCol++) {
+        if (this.get(srcRow, srcCol) !== PEG_SQUARE) continue;
+
+        [UP, RIGHT, DOWN, LEFT].forEach((direction) => {
+          const [midRow, midCol] = this._computeDstSquare(srcRow, srcCol, direction);
+          const [dstRow, dstCol] = this._computeDstSquare(midRow, midCol, direction);
+
+          if (!this._isWithinBounds(dstRow, dstCol)) return;
+
+          if (this.get(midRow, midCol) === PEG_SQUARE &&
+              this.get(dstRow, dstCol) === EMPTY_SQUARE) {
+            const newBoard = copyBoard(this._board);
+            newBoard[srcRow][srcCol] = EMPTY_SQUARE;
+            newBoard[midRow][midCol] = EMPTY_SQUARE;
+            newBoard[dstRow][dstCol] = PEG_SQUARE;
+            moves.push(new Game(newBoard));
+          }
+        });
       }
     }
 
