@@ -19,11 +19,11 @@ const INITIAL_BOARD = [
   "  XXX  ",
 ].map((line) => line.split(""));
 
-const deepCopy = (object) => JSON.parse(JSON.stringify(object));
+const copyBoard = (board) => board.map(line => line.map(cell => cell));
 
 export class Game {
   constructor(board) {
-    this._board = board ? board : deepCopy(INITIAL_BOARD);
+    this._board = board || copyBoard(INITIAL_BOARD);
   }
 
   _computeDstSquare(row, col, direction) {
@@ -69,7 +69,7 @@ export class Game {
     if (!this._isValidMove(srcRow, srcCol, dstRow, dstCol)) {
       throw new Error("Invalid move");
     }
-    const newBoard = deepCopy(this._board);
+    const newBoard = copyBoard(this._board);
     const set = (row, col, value) => (newBoard[row][col] = value);
 
     const [
