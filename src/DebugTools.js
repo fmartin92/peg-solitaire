@@ -1,7 +1,7 @@
 import React from "react";
 import "./DebugTools.css";
 import { AlgorithmSelector } from "./AlgorithmSelector";
-import { ALGORITHMS, DEFAULT_ALGORITHM } from "./game/Heuristics";
+import { ALGORITHMS, DEFAULT_ALGORITHM } from "./game/Algorithms";
 import { Bot } from "./game/Bot";
 
 const truncateFloat = (x) => parseInt(x * 100) / 100;
@@ -24,7 +24,7 @@ export class DebugTools extends React.Component {
           <p>
             Algorithm:
             <AlgorithmSelector
-              value={this.state.algorithm}
+              value={this.state.algorithm.name}
               onAlgorithmChange={(algorithm) =>
                 this.setState({ algorithm: algorithm })
               }
@@ -57,7 +57,7 @@ export class DebugTools extends React.Component {
   emptyOutput() {
     return (
       <div>
-        <p>Selected algorithm: {this.state.algorithm}</p>
+        <p>Selected algorithm: {this.state.algorithm.name}</p>
         <p>Number of iterations: {this.state.numIterations}</p>
       </div>
     );
@@ -129,8 +129,7 @@ export class DebugTools extends React.Component {
   }
 
   run() {
-    const heuristicFn = ALGORITHMS.get(this.state.algorithm);
-    const bot = new Bot(heuristicFn);
+    const bot = new Bot(this.state.algorithm);
     bot.runMany(this.state.numIterations);
     this.setState({
       scores: bot.scores,

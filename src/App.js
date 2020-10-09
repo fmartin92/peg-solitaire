@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { ALGORITHMS, DEFAULT_ALGORITHM } from "./game/Heuristics";
+import { DEFAULT_ALGORITHM } from "./game/Algorithms";
 import { Board } from "./Board";
 import { DebugTools } from "./DebugTools";
 import { AlgorithmSelector } from "./AlgorithmSelector";
@@ -15,25 +15,12 @@ class App extends React.Component {
     };
   }
 
-  /*get decisionNode() {
-    return this.state.gameHistory[this.state.currentGameIdx];
-  }
-
-  set decisionNode(newNode) {
-    const newGameHistory = this.state.gameHistory.slice(
-      0,
-      this.state.currentGameIdx + 1
-    );
-    newGameHistory.push(newNode);
-    this.setState({
-      gameHistory: newGameHistory,
-      currentGameIdx: this.state.currentGameIdx + 1,
-    });
-  }*/
-
   newMovement() {
     this.state.decisionTree.move(
-      ALGORITHMS.get(this.state.algorithm)(this.state.decisionTree.currentNode)
+      this.state.algorithm.play(this.state.decisionTree.currentNode, {
+        height: 2,
+        pow: 30,
+      })
     );
   }
 
@@ -59,7 +46,7 @@ class App extends React.Component {
               New movement
             </button>
             <AlgorithmSelector
-              value={this.state.algorithm}
+              value={this.state.algorithm.name}
               onAlgorithmChange={(algorithm) =>
                 this.onAlgorithmChange(algorithm)
               }

@@ -2,16 +2,16 @@ import { Game } from "./Game";
 import { DecisionNode } from "./DecisionNode";
 
 export class Bot {
-  constructor(heuristic, params = {}) {
-    this._heuristic = heuristic;
+  constructor(algorithm, params = { height: 2, pow: 30 }) {
+    this._algorithm = algorithm;
     this._params = params;
   }
 
   run() {
-    let game = new Game();
+    const game = new Game();
     let decisionNode = new DecisionNode(game);
     while (!decisionNode.game.isOver()) {
-      decisionNode = this._heuristic(decisionNode, this._params);
+      decisionNode = this._algorithm.play(decisionNode, this._params);
       decisionNode.clearParent();
     }
     return decisionNode.game;
