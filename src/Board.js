@@ -66,6 +66,8 @@ export class Board extends React.Component {
               key={`${row},${col}`}
               className={`cell ${cssClassNames.join(" ")}`}
               draggable={this.isPegDraggable(row, col)}
+              onMouseEnter={() => this.onMouseEnter(row, col)}
+              onMouseLeave={() => this.onMouseLeave()}
               onDragStart={() => this.onPegDragStart(row, col)}
               onDragEnd={() => this.onPegDragEnd()}
               // event dragover will inhibit drop if the default behavior is not prevented
@@ -78,15 +80,19 @@ export class Board extends React.Component {
     );
   }
 
-  isPegDraggable(row, col) {
-    return this.props.game.getValidMovesAt(row, col).length > 0;
+  onMouseEnter(row, col) {
+    this.setState({
+      candidateTargets: this.props.game.getValidMovesAt(row, col),
+    });
+  }
+
+  onMouseLeave(event) {
+    this.setState(DEFAULT_STATE);
   }
 
   onPegDragStart(row, col) {
     if (!this.isPegDraggable(row, col)) return;
-    const candidateTargets = this.props.game.getValidMovesAt(row, col);
     this.setState({
-      candidateTargets: candidateTargets,
       moveSrcRow: row,
       moveSrcCol: col,
     });
@@ -111,6 +117,10 @@ export class Board extends React.Component {
 
   dragDidStop() {
     this.setState(DEFAULT_STATE);
+  }
+
+  isPegDraggable(row, col) {
+    return this.props.game.getValidMovesAt(row, col).length > 0;
   }
 
   isMoving() {
