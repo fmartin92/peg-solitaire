@@ -1,7 +1,10 @@
 import React from "react";
 import "./DebugTools.css";
 import { AlgorithmSelector } from "./AlgorithmSelector";
-import { ALGORITHMS, DEFAULT_ALGORITHM } from "./game/Algorithms";
+import {
+  DEFAULT_ALGORITHM,
+  makeDefaultAlgorithmParams,
+} from "./game/Algorithms";
 import { Bot } from "./game/Bot";
 
 const truncateFloat = (x) => parseInt(x * 100) / 100;
@@ -10,10 +13,17 @@ export class DebugTools extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      algorithm: DEFAULT_ALGORITHM,
+      ...this.makeDefaultAlgorithmState(DEFAULT_ALGORITHM),
       numIterations: 10,
       scores: [],
       times: [],
+    };
+  }
+
+  makeDefaultAlgorithmState(algorithm) {
+    return {
+      algorithm: algorithm,
+      algorithmParams: makeDefaultAlgorithmParams(algorithm),
     };
   }
 
@@ -26,10 +36,32 @@ export class DebugTools extends React.Component {
             <AlgorithmSelector
               value={this.state.algorithm.name}
               onAlgorithmChange={(algorithm) =>
-                this.setState({ algorithm: algorithm })
+                this.setState(this.makeDefaultAlgorithmState(algorithm))
               }
             />
           </p>
+
+          {Object.entries(this.state.algorithm.params).map(
+            ([key, paramDescriptor]) => (
+              <p key={key}>
+                {paramDescriptor.name}:
+                <input
+                  type="number"
+                  min={paramDescriptor.min}
+                  max={paramDescriptor.max}
+                  value={this.state.algorithmParams[key]}
+                  onChange={(event) =>
+                    this.setState({
+                      algorithmParams: {
+                        ...this.state.algorithmParams,
+                        [key]: +event.target.value,
+                      },
+                    })
+                  }
+                />
+              </p>
+            )
+          )}
 
           <p>
             Number of iterations:
@@ -129,7 +161,7 @@ export class DebugTools extends React.Component {
   }
 
   run() {
-    const bot = new Bot(this.state.algorithm);
+    const bot = new Bot(this.state.algorithm, this.state.algorithmParams);
     bot.runMany(this.state.numIterations);
     this.setState({
       scores: bot.scores,

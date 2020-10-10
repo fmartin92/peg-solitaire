@@ -34,8 +34,6 @@ export class DecisionTree {
       throw new Error("move() accepts Game or DecisionNode objects only.");
     }
     this._currentNode = newNode;
-    console.log(this._currentNode);
-    console.log(this.game.toString());
     this._mostRecentNode = newNode;
   }
 

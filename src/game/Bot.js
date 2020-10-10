@@ -1,10 +1,11 @@
 import { Game } from "./Game";
 import { DecisionNode } from "./DecisionNode";
+import { makeDefaultAlgorithmParams } from "./Algorithms";
 
 export class Bot {
-  constructor(algorithm, params = { height: 2, pow: 30 }) {
+  constructor(algorithm, params) {
     this._algorithm = algorithm;
-    this._params = params;
+    this._params = params || makeDefaultAlgorithmParams(algorithm);
   }
 
   run() {

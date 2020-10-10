@@ -16,6 +16,10 @@ class App extends React.Component {
   }
 
   newMovement() {
+    const defaultParams = {};
+    Object.entries(this.state.algorithm.params).forEach(
+      ([key, value]) => (defaultParams[key] = value.default)
+    );
     this.state.decisionTree.move(
       this.state.algorithm.play(this.state.decisionTree.currentNode, {
         height: 2,

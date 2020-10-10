@@ -81,3 +81,11 @@ export const ALGORITHMS = [
 ];
 
 export const DEFAULT_ALGORITHM = RandomMaxDescendants;
+
+export function makeDefaultAlgorithmParams(algorithm) {
+  const algorithmParams = {};
+  Object.entries(algorithm.params).forEach(
+    ([key, paramDescriptor]) => (algorithmParams[key] = paramDescriptor.default)
+  );
+  return algorithmParams;
+}
