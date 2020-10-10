@@ -8,33 +8,46 @@
   grid-template-rows:
     var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size)
     var(--cell-size) var(--cell-size) var(--cell-size);
-}
 
-.cell {
   border: 1px solid black;
 }
 
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell .peg {
+  border-radius: 50%;
+}
+
 .cell.invalid-square {
-  background-color: black;
+  background-color: gray;
 }
 
-.cell.peg-square {
-  font-weight: bold;
-  background-color: #ffaaaa;
+.cell.peg-square .peg {
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(at 30% 30%, white, #333333);
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
 }
 
-.cell.selected {
-  background-color: red;
+.cell.empty-square .peg {
+  width: 10px;
+  height: 10px;
+  background-color: #aaaaaa;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3) inset;
 }
 
-.cell.candidate-target {
-  background-color: yellow;
+.cell.candidate-target .peg {
+  background-color: #ffcccc;
 }
 
 .cell.draggable {
   cursor: pointer;
 }
 
-.cell.draggable:hover {
-  background-color: #ff6666;
+.cell.draggable:hover .peg {
+  background: radial-gradient(at 30% 30%, #ffcccc, #990000);
 }

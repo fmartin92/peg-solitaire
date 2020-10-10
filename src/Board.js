@@ -73,7 +73,9 @@ export class Board extends React.Component {
               // event dragover will inhibit drop if the default behavior is not prevented
               onDragOver={(event) => event.preventDefault()}
               onDrop={() => this.onSquareDrop(row, col)}
-            ></div>
+            >
+              <div className="peg"></div>
+            </div>
           );
         })}
       </div>
@@ -93,6 +95,7 @@ export class Board extends React.Component {
   onPegDragStart(row, col) {
     if (!this.isPegDraggable(row, col)) return;
     this.setState({
+      candidateTargets: this.props.game.getValidMovesAt(row, col),
       moveSrcRow: row,
       moveSrcCol: col,
     });
