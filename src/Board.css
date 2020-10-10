@@ -2,8 +2,12 @@
   --cell-size: 70px;
 
   display: grid;
-  grid-template-columns: var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size);
-  grid-template-rows: var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size);
+  grid-template-columns:
+    var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size)
+    var(--cell-size) var(--cell-size) var(--cell-size);
+  grid-template-rows:
+    var(--cell-size) var(--cell-size) var(--cell-size) var(--cell-size)
+    var(--cell-size) var(--cell-size) var(--cell-size);
 }
 
 .cell {
@@ -14,22 +18,23 @@
   background-color: black;
 }
 
-.cell.empty-square::before {
-}
-
 .cell.peg-square {
   font-weight: bold;
-  background-color: #FFAAAA;
-}
-
-.cell.peg-square::before {
-  content: "O";
+  background-color: #ffaaaa;
 }
 
 .cell.selected {
   background-color: red;
 }
 
-.cell.candidate-move {
+.cell.candidate-target {
   background-color: yellow;
+}
+
+.cell.draggable {
+  cursor: pointer;
+}
+
+.cell.draggable:hover {
+  background-color: #ff6666;
 }

@@ -7,9 +7,8 @@ import {
   BOARD_SIDE_LENGTH,
 } from "./game/Game";
 
-const INITIAL_STATE = {
-  candidateMoves: [],
-  moving: false,
+const DEFAULT_STATE = {
+  candidateTargets: [],
   moveSrcRow: -1,
   moveSrcCol: -1,
 };
@@ -17,7 +16,7 @@ const INITIAL_STATE = {
 export class Board extends React.Component {
   constructor(props) {
     super(props);
-    this.state = INITIAL_STATE;
+    this.state = DEFAULT_STATE;
   }
 
   render() {
@@ -54,17 +53,24 @@ export class Board extends React.Component {
               );
           }
 
-          if (this.isCandidateMove(row, col))
-            cssClassNames.push("candidate-move");
+          if (this.isCandidateTarget(row, col))
+            cssClassNames.push("candidate-target");
 
           if (row === this.state.moveSrcRow && col === this.state.moveSrcCol)
             cssClassNames.push("selected");
+
+          if (this.isPegDraggable(row, col)) cssClassNames.push("draggable");
 
           return (
             <div
               key={`${row},${col}`}
               className={`cell ${cssClassNames.join(" ")}`}
-              onClick={(event) => this.onCellClick(row, col)}
+              draggable={this.isPegDraggable(row, col)}
+              onDragStart={() => this.onPegDragStart(row, col)}
+              onDragEnd={() => this.onPegDragEnd()}
+              // event dragover will inhibit drop if the default behavior is not prevented
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => this.onSquareDrop(row, col)}
             ></div>
           );
         })}
@@ -72,29 +78,26 @@ export class Board extends React.Component {
     );
   }
 
-  onCellClick(row, col) {
-    if (this.state.moving) {
-      this.finishMove(row, col);
-    } else {
-      if (this.props.game.get(row, col) !== PEG_SQUARE) return;
-      this.startMove(row, col);
-    }
+  isPegDraggable(row, col) {
+    return this.props.game.getValidMovesAt(row, col).length > 0;
   }
 
-  startMove(row, col) {
-    const candidateMoves = this.props.game.getValidMovesAt(row, col);
-    if (candidateMoves.length > 0) {
-      this.setState({
-        candidateMoves: candidateMoves,
-        moving: true,
-        moveSrcRow: row,
-        moveSrcCol: col,
-      });
-    }
+  onPegDragStart(row, col) {
+    if (!this.isPegDraggable(row, col)) return;
+    const candidateTargets = this.props.game.getValidMovesAt(row, col);
+    this.setState({
+      candidateTargets: candidateTargets,
+      moveSrcRow: row,
+      moveSrcCol: col,
+    });
   }
 
-  finishMove(row, col) {
-    if (this.isCandidateMove(row, col)) {
+  onPegDragEnd() {
+    this.dragDidStop();
+  }
+
+  onSquareDrop(row, col) {
+    if (this.isMoving() && this.isCandidateTarget(row, col)) {
       const newGame = this.props.game.moveTo(
         this.state.moveSrcRow,
         this.state.moveSrcCol,
@@ -103,11 +106,19 @@ export class Board extends React.Component {
       );
       this.props.gameChangedCb(newGame);
     }
-    this.setState(INITIAL_STATE);
+    this.dragDidStop();
   }
 
-  isCandidateMove(row, col) {
-    return !!this.state.candidateMoves.find(
+  dragDidStop() {
+    this.setState(DEFAULT_STATE);
+  }
+
+  isMoving() {
+    return this.state.moveSrcRow >= 0 && this.state.moveSrcCol >= 0;
+  }
+
+  isCandidateTarget(row, col) {
+    return !!this.state.candidateTargets.find(
       (move) => move[0] === row && move[1] === col
     );
   }
