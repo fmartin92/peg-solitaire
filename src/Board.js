@@ -65,16 +65,18 @@ export class Board extends React.Component {
             <div
               key={`${row},${col}`}
               className={`cell ${cssClassNames.join(" ")}`}
-              draggable={this.isPegDraggable(row, col)}
-              onMouseEnter={() => this.onMouseEnter(row, col)}
-              onMouseLeave={() => this.onMouseLeave()}
-              onDragStart={() => this.onPegDragStart(row, col)}
               onDragEnd={() => this.onPegDragEnd()}
               // event dragover will inhibit drop if the default behavior is not prevented
               onDragOver={(event) => event.preventDefault()}
               onDrop={() => this.onSquareDrop(row, col)}
             >
-              <div className="peg"></div>
+              <div
+                className="peg"
+                draggable={this.isPegDraggable(row, col)}
+                onMouseEnter={() => this.onMouseEnter(row, col)}
+                onMouseLeave={() => this.onMouseLeave()}
+                onDragStart={() => this.onPegDragStart(row, col)}
+              ></div>
             </div>
           );
         })}

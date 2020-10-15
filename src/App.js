@@ -6,7 +6,7 @@ import { DebugTools } from "./DebugTools";
 import { AlgorithmSelector } from "./AlgorithmSelector";
 import { DecisionTree } from "./game/DecisionTree";
 
-class App extends React.Component {
+export class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -83,7 +83,6 @@ class App extends React.Component {
             </button>
           </div>
         </div>
-        <DebugTools />
       </div>
     );
   }
