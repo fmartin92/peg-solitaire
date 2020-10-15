@@ -30,7 +30,7 @@ export class App extends React.Component {
 
   render() {
     return (
-      <div className="app">
+      <div className="app container">
         <div className="board-and-controls">
           <Board
             game={this.state.decisionTree.game}

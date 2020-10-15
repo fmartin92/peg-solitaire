@@ -7,6 +7,9 @@ export class Router extends React.Component {
   render() {
     return (
       <BrowserRouter>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+          <span className="navbar-brand">Peg solitaire</span>
+        </nav>
         <Switch>
           <Route exact path="/">
             <App />

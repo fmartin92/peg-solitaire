@@ -44,10 +44,10 @@
   background-color: #ffcccc;
 }
 
-.cell.draggable {
+.cell.draggable .peg {
   cursor: pointer;
 }
 
-.cell.draggable:hover .peg {
+.cell.draggable .peg:hover {
   background: radial-gradient(at 30% 30%, #ffcccc, #990000);
 }
