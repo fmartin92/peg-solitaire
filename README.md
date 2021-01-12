@@ -1,4 +1,4 @@
 # Peg solitaire
 
-A ReactJS implementation of the English [peg
-solitaire](https://en.wikipedia.org/wiki/Peg_solitaire).
+A ReactJS implementation of the [Peg
+Solitaire](https://en.wikipedia.org/wiki/Peg_solitaire) game.
